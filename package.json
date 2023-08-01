@@ -1,0 +1,26 @@
+{
+  "name": "async-communication-serverless",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "serverless deploy",
+    "remove": "serverless remove"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.119",
+    "serverless-iam-roles-per-function": "^3.2.0",
+    "serverless-plugin-typescript": "^2.1.5",
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "@aws-sdk/client-sns": "^3.379.1",
+    "@middy/core": "^4.5.5",
+    "@middy/http-json-body-parser": "^4.5.5",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.0"
+  }
+}

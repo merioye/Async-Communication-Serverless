@@ -1,0 +1,35 @@
+DemoSNSTopicTargetSQS:
+  Type: AWS::SQS::Queue
+  Properties:
+    QueueName: async-demo-sqs-${self:provider.stage}
+    RedrivePolicy:
+      deadLetterTargetArn: !GetAtt DemoSNSTopicDLQ.Arn
+      maxReceiveCount: 2
+
+DemoSNSTopicDLQ:
+  Type: AWS::SQS::Queue
+  Properties:
+    QueueName: async-demo-dlq-${self:provider.stage}
+
+DemoSNSTopic:
+  Type: AWS::SNS::Topic
+  Properties:
+    TopicName: async-demo-topic-${self:provider.stage}
+    Subscription:
+      - Endpoint: !GetAtt DemoSNSTopicTargetSQS.Arn
+        Protocol: sqs
+
+# Creating the IAM policy at SNS Topic to communicate with SQS
+SNSTopicSQSPolicy:
+  Type: AWS::SQS::QueuePolicy
+  Properties:
+    Queues:
+      - !Ref DemoSNSTopicTargetSQS
+    PolicyDocument:
+      Statement:
+        Effect: Allow
+        Action:
+          - SQS:*
+        Resource: !GetAtt DemoSNSTopicTargetSQS.Arn
+        Principal:
+          Service: sns.amazonaws.com

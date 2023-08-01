@@ -1,0 +1,47 @@
+service: async-communication-serverless
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  versionFunctions: false
+  stage: ${opt:stage,'dev'}
+
+functions:
+  putEvent:
+    handler: src/handler.putEvent
+    memorySize: 128
+    timeout: 6
+    environment:
+      SNS_TOPIC_ARN: !Ref DemoSNSTopic
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - sns:Publish
+        Resource: !Ref DemoSNSTopic
+    events:
+      - httpApi:
+          path: /putEvent
+          method: post
+  processEvent:
+    handler: src/handler.processEvent
+    memorySize: 128
+    timeout: 6
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - sqs:*
+        Resource: !GetAtt DemoSNSTopicTargetSQS.Arn
+    events:
+      - sqs:
+          arn: !GetAtt DemoSNSTopicTargetSQS.Arn
+          batchSize: 10
+          functionResponseType: "ReportBatchItemFailures"
+
+resources:
+  Resources: ${file(resources.yml)}
+
+plugins:
+  - serverless-iam-roles-per-function
+  - serverless-plugin-typescript
